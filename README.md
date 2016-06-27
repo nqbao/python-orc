@@ -8,5 +8,9 @@ by Python but there is no efficient way to access the file without converting it
 My approach is to use [orc-core](https://orc.apache.org/docs/core-java.html) java library to read ORC file, then use
 [py4j](https://github.com/bartdag/py4j) to bridge between Python and Java.
 
-I call it poor man it is not a proper approach. This approach may not work or may suffer performance issue due to overhead.
+I call it poor man because it is not a proper approach. This approach may not work or may suffer performance issue due to overhead.
 The proper approach would be using C++ reader from orc-core library.
+
+## How to use it?
+
+TBD
