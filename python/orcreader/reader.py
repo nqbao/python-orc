@@ -1,5 +1,6 @@
-from gateway import get_gateway, get_field
-
+from gateway import get_gateway
+from py4j import java_collections
+from collections import OrderedDict
 
 class OrcReader:
     def __init__(self, path):
@@ -37,6 +38,11 @@ class OrcReader:
     def batch(self, size=1024):
         return
 
+    def schema(self):
+        fields = self.reader.getFieldNames()
+        dict = self.reader.getSchemaDictionary()
+        return OrderedDict([(field, dict[field]) for field in fields])
+
     def __iter__(self):
         return OrcRecordIterator(self.reader.iterator())
 
@@ -52,6 +58,12 @@ class OrcRecordIterator:
 
         record = self.iterator.next()
         py_record = list(record)
+
+        for i in range(0, len(py_record)):
+            if type(py_record[i]) is java_collections.JavaArray:
+                arr = list(py_record[i])
+                py_record[i]._detach()
+                py_record[i] = arr
 
         record._detach()
         return py_record

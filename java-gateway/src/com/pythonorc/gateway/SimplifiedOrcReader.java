@@ -2,9 +2,7 @@ package com.pythonorc.gateway;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.ColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch;
+import org.apache.hadoop.hive.ql.exec.vector.*;
 import org.apache.orc.OrcFile;
 import org.apache.orc.Reader;
 import org.apache.orc.RecordReader;
@@ -12,10 +10,7 @@ import org.apache.orc.TypeDescription;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Created by baonguyen on 6/26/16.
@@ -53,6 +48,20 @@ public class SimplifiedOrcReader implements Iterable<Object[]> {
 
     public long getNumberOfColumns() {
         return this.schema.getFieldNames().size();
+    }
+
+    public Map<String, String> getSchemaDictionary() {
+        Map<String, String> dict = new HashMap<>();
+        List<TypeDescription> children = this.reader.getSchema().getChildren();
+        List<String> fieldNames = this.getFieldNames();
+
+        int idx = 0;
+        for (TypeDescription type : children) {
+            dict.put(fieldNames.get(idx), type.getCategory().getName());
+            idx++;
+        }
+
+        return dict;
     }
 
     @Override
@@ -112,6 +121,27 @@ public class SimplifiedOrcReader implements Iterable<Object[]> {
 
                     return new String(bytes, StandardCharsets.UTF_8);
                 }
+            } else if (column instanceof LongColumnVector) {
+                LongColumnVector lv = (LongColumnVector) column;
+                return lv.vector[index];
+            } else if (column instanceof DoubleColumnVector) {
+                DoubleColumnVector dv = (DoubleColumnVector) column;
+                return dv.vector[index];
+            } else if (column instanceof ListColumnVector) {
+                ListColumnVector list = (ListColumnVector) column;
+                long length = list.lengths[index];
+                long start = list.offsets[index];
+
+                List<Object> items = new LinkedList<>();
+
+                for (long i = start; i < length; i++) {
+                    // XXX: long to int
+                    items.add(getValue(list.child, (int)i));
+                }
+
+                return items.toArray();
+            } else {
+                System.out.println(column.getClass().getName());
             }
 
             return null;
