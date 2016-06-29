@@ -15,7 +15,23 @@ exercise to know more about ORC and py4j.
 
 ## How to use it?
 
-TBD
+This project is still a prototype, however you can try the orc2csv script to convert from ORC to CSV. 
+
+Compile java gateway, then run the gateway (I will automate this step later)
+
+```
+cd java-gateway
+mvn clean compile assembly:single
+cd target
+java -jar gateway-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+Now we have the gateway running, we can try the orc2csv reader.
+ 
+```
+cd python
+python orc2csv.py
+```
 
 ## TODOs
 
