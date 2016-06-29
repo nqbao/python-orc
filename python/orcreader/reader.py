@@ -11,7 +11,7 @@ class OrcReader:
     def open(self):
         try:
             gateway = self.gateway
-            reader = gateway.jvm.com.pythonorc.gateway.SimplifiedOrcReader(self.path)
+            reader = gateway.jvm.com.pythonorc.SimplifiedOrcReader(self.path)
             reader.open()
 
             self.reader = reader
@@ -56,14 +56,19 @@ class OrcRecordIterator:
             self.iterator._detach()
             raise StopIteration()
 
-        record = self.iterator.next()
-        py_record = list(record)
+        return self.normalize_record(self.iterator.next())
 
-        for i in range(0, len(py_record)):
-            if type(py_record[i]) is java_collections.JavaArray:
-                arr = list(py_record[i])
-                py_record[i]._detach()
-                py_record[i] = arr
+    def normalize_record(self, record):
+        if type(record) is java_collections.JavaArray:
+            items = [self.normalize_record(item) for item in record]
+            record._detach()
+            return items
+        elif type(record) is java_collections.JavaMap:
+            items = {}
+            for key in record:
+                items[key] = self.normalize_record(record[key])
 
-        record._detach()
-        return py_record
+            record._detach()
+            return items
+
+        return record
