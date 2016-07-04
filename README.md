@@ -13,9 +13,14 @@ due to overhead. The proper approach would be using C++ reader from orc-core lib
 exercise to know more about ORC and py4j. 
 
 
-## How to use it?
+## Installation
+ 
+You can then the package to system
 
-This project is still a prototype, however you can try the orc2csv script to convert from ORC to CSV. 
+```
+cd python
+python setup.py install
+```
 
 Compile java gateway, then start the gateway (I will automate this step later)
 
@@ -26,11 +31,49 @@ cd target
 java -jar gateway-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-Now we have the gateway running, we can try the orc2csv reader.
- 
+## Usage
+
+After you setup the python package, you can create a reader as following. Please note that right now we need an
+absolute path to the orc file.
+
 ```
-cd python
-python orc2csv.py
+from orcreader.reader import OrcReader
+reader = OrcReader(abs_path_orc_file)
+reader.open()
+```
+
+To access the schema and number of records
+
+```
+print reader.num_rows
+print reader.schema
+```
+
+You can iterate through the record of the file by looping through the reader
+
+```
+for row in reader:
+  print row
+```
+
+Or you can do batching with `batch(size)`
+
+```
+# loop through 100 records as a time
+for batch in reader.batch(100):
+  print batch
+```
+
+Make sure to close the reader after you are done
+
+```
+reader.close() 
+```
+
+You can also try the orc2csv script to convert from ORC to CSV.
+
+```
+orc2csv /path/to/orcfile
 ```
 
 ## Known Issues

@@ -2,3 +2,6 @@ java-gateway/out
 java-gateway/target
 java-gateway/.idea/libraries
 python/venv
+python/build
+python/dist
+python/*egg-info

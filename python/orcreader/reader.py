@@ -10,7 +10,6 @@ def normalize_record(record):
         return items
     elif type(record) is java_collections.JavaMap:
         items = {field: normalize_record(record[field]) for field in record}
-
         record._detach()
         return items
 
@@ -24,17 +23,18 @@ class OrcReader:
         self.reader = None
 
     def open(self):
+        reader = None
+
         try:
             gateway = self.gateway
             reader = gateway.jvm.com.pythonorc.SimplifiedOrcReader(self.path)
             reader.open()
-
-            self.reader = reader
         except Exception:
-            if self.reader:
-                self.reader._detach()
-                self.reader = None
+            if reader:
+                reader._detach()
             raise
+        finally:
+            self.reader = reader
 
     def close(self):
         self.reader.close()
@@ -75,4 +75,3 @@ class OrcRecordIterator:
             raise StopIteration()
 
         return normalize_record(self.iterator.next())
-
