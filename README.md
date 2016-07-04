@@ -17,14 +17,14 @@ exercise to know more about ORC and py4j.
  
 You can then the package to system
 
-```
+``` bash
 cd python
 python setup.py install
 ```
 
 Compile java gateway, then start the gateway (I will automate this step later)
 
-```
+``` bash
 cd java-gateway
 mvn clean compile assembly:single
 cd target
@@ -33,10 +33,9 @@ java -jar gateway-1.0-SNAPSHOT-jar-with-dependencies.jar
 
 ## Usage
 
-After you setup the python package, you can create a reader as following. Please note that right now we need an
-absolute path to the orc file.
+After you setup the python package, you can create a reader as following:
 
-```
+``` python
 from orcreader.reader import OrcReader
 reader = OrcReader(abs_path_orc_file)
 reader.open()
@@ -44,21 +43,21 @@ reader.open()
 
 To access the schema and number of records
 
-```
+``` python
 print reader.num_rows
 print reader.schema
 ```
 
 You can iterate through the record of the file by looping through the reader
 
-```
+``` python
 for row in reader:
   print row
 ```
 
 Or you can do batching with `batch(size)`
 
-```
+``` python
 # loop through 100 records as a time
 for batch in reader.batch(100):
   print batch
@@ -66,13 +65,15 @@ for batch in reader.batch(100):
 
 Make sure to close the reader after you are done
 
-```
+``` python
 reader.close() 
 ```
 
+There are two limitation at the monent: (1) we need an absolute path to the orc file and you need to start the gateway manually. I will fix these later when I have time.
+
 You can also try the orc2csv script to convert from ORC to CSV.
 
-```
+``` bash
 orc2csv /path/to/orcfile
 ```
 
