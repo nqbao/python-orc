@@ -8,7 +8,7 @@ by Python but there is no efficient way to access the file without converting it
 My approach is to use [orc-core](https://orc.apache.org/docs/core-java.html) java library to read ORC file, then use
 [py4j](https://github.com/bartdag/py4j) to bridge between Python and Java.
 
-I call it poor man because it is not a proper approach. This approach may not work or may suffer from performance issue
+I call it poor man because it may not be a proper approach. This approach may not work or may suffer from performance issue
 due to overhead. The proper approach would be using C++ reader from orc-core library. I want to go through this as an 
 exercise to know more about ORC and py4j. 
 
@@ -17,7 +17,7 @@ exercise to know more about ORC and py4j.
 
 This project is still a prototype, however you can try the orc2csv script to convert from ORC to CSV. 
 
-Compile java gateway, then run the gateway (I will automate this step later)
+Compile java gateway, then start the gateway (I will automate this step later)
 
 ```
 cd java-gateway
@@ -33,6 +33,8 @@ cd python
 python orc2csv.py
 ```
 
-## TODOs
+## Known Issues
 
-Types are not proper supported. So far I only check and convert a few ORC types to python types.
+* Type conversion may be incorrect. I didn't spend a lot of time checking the correct type conversion between Python and Java.
+* There may be performance overhead when processing big ORC file.
+

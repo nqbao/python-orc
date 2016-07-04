@@ -119,6 +119,8 @@ public class SimplifiedOrcReader implements Iterable<Object[]> {
 
         Object getValue(ColumnVector column, int index, TypeDescription type) {
             // ref: https://orc.apache.org/docs/core-java.html
+            TypeDescription.Category category = type.getCategory();
+
             if (column.isRepeating) {
                 index = 0;
             }
@@ -131,11 +133,27 @@ public class SimplifiedOrcReader implements Iterable<Object[]> {
                 if (bv.vector[index] != null) {
                     byte[] bytes = Arrays.copyOfRange(bv.vector[index], bv.start[index], bv.start[index] + bv.length[index]);
 
-                    return new String(bytes, StandardCharsets.UTF_8);
+                    switch (category) {
+                        case CHAR:
+                        case VARCHAR:
+                        case STRING:
+                            return new String(bytes, StandardCharsets.UTF_8);
+
+                        default:
+                            return bytes;
+                    }
                 }
             } else if (column instanceof LongColumnVector) {
                 LongColumnVector lv = (LongColumnVector) column;
-                return lv.vector[index];
+                Object value = lv.vector[index];
+
+                switch (category) {
+                    case BOOLEAN:
+                        value = (long)value > 0 ? true : false;
+                        break;
+                }
+
+                return value;
             } else if (column instanceof DoubleColumnVector) {
                 DoubleColumnVector dv = (DoubleColumnVector) column;
                 return dv.vector[index];
