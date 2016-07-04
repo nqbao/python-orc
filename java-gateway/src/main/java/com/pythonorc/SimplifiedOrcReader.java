@@ -121,19 +121,17 @@ public class SimplifiedOrcReader implements Iterable<Object> {
 
         @Override
         public Object next() {
-            Dictionary<String, Object> result = new Hashtable<>();
+            Object[][] result = new Object[this.batch.numCols][];
 
             try {
-                List<String> names = this.schema.getFieldNames();
-
                 // init array map
                 for (int i = 0; i < this.batch.numCols; i++) {
-                    result.put(names.get(i), new Object[(int)this.batchSize]);
+                    result[i] = new Object[(int)this.batchSize];
                 }
 
                 while (this.batchIndex < this.batchSize) {
                     for (int i = 0; i < this.batch.numCols; i++) {
-                        Object[] batchColumn = (Object[])result.get(names.get(i));
+                        Object[] batchColumn = result[i];
 
                         ColumnVector column = this.batch.cols[i];
                         batchColumn[this.batchIndex] = getValue(column, this.batchIndex, this.schema.getChildren().get(i));
