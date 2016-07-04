@@ -2,6 +2,21 @@ from gateway import get_gateway
 from py4j import java_collections
 from collections import OrderedDict
 
+
+def normalize_record(record):
+    if type(record) is java_collections.JavaArray:
+        items = [normalize_record(item) for item in record]
+        record._detach()
+        return items
+    elif type(record) is java_collections.JavaMap:
+        items = {field: normalize_record(record[field]) for field in record}
+
+        record._detach()
+        return items
+
+    return record
+
+
 class OrcReader:
     def __init__(self, path):
         self.gateway = get_gateway()
@@ -36,7 +51,7 @@ class OrcReader:
         raise
 
     def batch(self, size=1024):
-        return
+        return OrcRecordIterator(self.reader.batch(size))
 
     def schema(self):
         fields = self.reader.getFieldNames()
@@ -51,24 +66,13 @@ class OrcRecordIterator:
     def __init__(self, iterator):
         self.iterator = iterator
 
+    def __iter__(self):
+        return self
+
     def next(self):
         if not self.iterator.hasNext():
             self.iterator._detach()
             raise StopIteration()
 
-        return self.normalize_record(self.iterator.next())
+        return normalize_record(self.iterator.next())
 
-    def normalize_record(self, record):
-        if type(record) is java_collections.JavaArray:
-            items = [self.normalize_record(item) for item in record]
-            record._detach()
-            return items
-        elif type(record) is java_collections.JavaMap:
-            items = {}
-            for key in record:
-                items[key] = self.normalize_record(record[key])
-
-            record._detach()
-            return items
-
-        return record
