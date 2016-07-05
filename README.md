@@ -69,13 +69,17 @@ Make sure to close the reader after you are done
 reader.close() 
 ```
 
-There are two limitation at the monent: (1) we need an absolute path to the orc file and you need to start the gateway manually. I will fix these later when I have time.
+There are two limitation at the monent: (1) we need an absolute path to the orc file and (2) you need to start the gateway manually. I will fix these later when I have time.
 
 You can also try the orc2csv script to convert from ORC to CSV.
 
 ``` bash
 orc2csv /path/to/orcfile
 ```
+
+# TODOs
+
+* Auto start / top java gateway
 
 ## Known Issues
 
