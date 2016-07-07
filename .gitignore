@@ -4,4 +4,5 @@ java-gateway/.idea/libraries
 python/venv
 python/build
 python/dist
+python/*.jar
 python/*egg-info

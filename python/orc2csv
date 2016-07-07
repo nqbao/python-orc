@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os.path as path
 import sys
-from orcreader.reader import OrcReader
+from orcreader import OrcReader
 
 if len(sys.argv) <= 1:
     print "Usage: orc2csv ORC_FILE"

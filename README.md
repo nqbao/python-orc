@@ -15,20 +15,20 @@ exercise to know more about ORC and py4j.
 
 ## Installation
  
-You can then the package to system
+Until this package is available on PIP, you will have to install the package as following:
 
-``` bash
-cd python
-python setup.py install
-```
-
-Compile java gateway, then start the gateway (I will automate this step later)
+1. Compile java gateway
 
 ``` bash
 cd java-gateway
 mvn clean compile assembly:single
-cd target
-java -jar gateway-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+ 
+2. Run setup.py script to install the package to the system
+
+``` bash
+cd python
+python setup.py install
 ```
 
 ## Usage
@@ -36,7 +36,7 @@ java -jar gateway-1.0-SNAPSHOT-jar-with-dependencies.jar
 After you setup the python package, you can create a reader as following:
 
 ``` python
-from orcreader.reader import OrcReader
+from orcreader import OrcReader
 reader = OrcReader(abs_path_orc_file)
 reader.open()
 ```
@@ -46,6 +46,13 @@ To access the schema and number of records
 ``` python
 print reader.num_rows
 print reader.schema
+```
+
+Alternatively, you can also use a `with` statement
+
+``` python
+with OrcReader(abs_path_orc_file) as reader:
+     print reader.schema
 ```
 
 You can iterate through the record of the file by looping through the reader
@@ -58,7 +65,7 @@ for row in reader:
 Or you can do batching with `batch(size)`
 
 ``` python
-# loop through 100 records as a time
+# loop through 100 records at a time
 for batch in reader.batch(100):
   print batch
 ```
@@ -79,7 +86,12 @@ orc2csv /path/to/orcfile
 
 # TODOs
 
-* Auto start / top java gateway
+[x] Auto start / top java gateway
+[ ] Auto build gateway compiling
+[ ] Unit tests
+[ ] Publish package
+[ ] Column projection and filtering
+[ ] Wildcard directory support
 
 ## Known Issues
 
