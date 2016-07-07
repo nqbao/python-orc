@@ -48,13 +48,6 @@ print reader.num_rows
 print reader.schema
 ```
 
-Alternatively, you can also use a `with` statement
-
-``` python
-with OrcReader(abs_path_orc_file) as reader:
-     print reader.schema
-```
-
 You can iterate through the record of the file by looping through the reader
 
 ``` python
@@ -74,6 +67,13 @@ Make sure to close the reader after you are done
 
 ``` python
 reader.close() 
+```
+
+Alternatively, you can also use a `with` statement and the context manager will manage the life cycle of the reader for you.
+
+``` python
+with OrcReader(abs_path_orc_file) as reader:
+     print reader.schema
 ```
 
 There are some limitation at the monent such as we need an absolute path to the orc file. I will fix these later when I have time.
