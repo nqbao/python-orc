@@ -86,12 +86,12 @@ orc2csv /path/to/orcfile
 
 # TODOs
 
-[x] Auto start / top java gateway
-[ ] Auto build gateway compiling
-[ ] Unit tests
-[ ] Publish package
-[ ] Column projection and filtering
-[ ] Wildcard directory support
+- [x] Auto start / top java gateway
+- [ ] Auto build gateway compiling
+- [ ] Unit tests
+- [ ] Publish package
+- [ ] Column projection and filtering
+- [ ] Wildcard directory support
 
 ## Known Issues
 
