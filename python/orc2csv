@@ -9,11 +9,8 @@ if len(sys.argv) <= 1:
     exit()
 
 orc_file = path.realpath(sys.argv[1])
-reader = OrcReader(orc_file)
-reader.open()
 
-max = reader.num_rows
-for row in reader:
-   print u",".join([unicode(field) for field in row]).encode("utf-8")
-
-reader.close()
+with OrcReader(orc_file) as reader:
+    max = reader.num_rows
+    for row in reader:
+        print u",".join([unicode(field) for field in row]).encode("utf-8")
