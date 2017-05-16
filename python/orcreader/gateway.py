@@ -19,14 +19,20 @@ def find_jar_path():
     return ""
 
 
-def get_gateway(extra_jar=None):
+def get_gateway(extra_jar=None, debug=False):
 
     if extra_jar is None:
         extra_jar = find_jar_path()
 
+    opts = {}
+
+    if debug:
+        opts['redirect_stderr'] = sys.stderr
+        opts['redirect_stdout'] = sys.stdout
+
     port = launch_gateway(
         die_on_exit=True, classpath=extra_jar,
-        # redirect_stderr=sys.stderr, redirect_stdout=sys.stdout
+        **opts
     )
 
     gateway = JavaGateway(gateway_parameters=GatewayParameters(port=port),

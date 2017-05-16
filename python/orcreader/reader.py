@@ -17,11 +17,12 @@ def normalize_record(record):
 
 
 class OrcReader:
-    def __init__(self, path, gateway=None):
+    def __init__(self, path, gateway=None, debug=False):
         self.gateway = gateway
         self._custom_gateway = None
         self.path = path
         self.reader = None
+        self.debug = debug
 
     def open(self):
         reader = None
@@ -29,7 +30,7 @@ class OrcReader:
             gateway = self.gateway
 
             if not gateway:
-                gateway = self.gateway = get_gateway()
+                gateway = self.gateway = get_gateway(debug=self.debug)
                 self._custom_gateway = True
 
             reader = gateway.jvm.com.pythonorc.SimplifiedOrcReader(self.path)
@@ -77,6 +78,10 @@ class OrcReader:
         dict = self.reader.getSchemaDictionary()
         return OrderedDict([(field, dict[field]) for field in fields])
 
+    @property
+    def fileMetaInfo(self):
+        return self.reader.getFileMetaInfo()
+
     def __iter__(self):
         return OrcRecordIterator(self.reader.iterator())
 
@@ -91,9 +96,15 @@ class OrcReader:
 class OrcRecordIterator:
     def __init__(self, iterator):
         self.iterator = iterator
+        self.offset = None
+        self.limit = None
 
     def __iter__(self):
         return self
+
+    def range(self, offset, limit=None):
+        self.offset = offset
+        self.limit = limit
 
     def next(self):
         if not self.iterator.hasNext():

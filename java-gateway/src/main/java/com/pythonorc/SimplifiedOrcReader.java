@@ -3,10 +3,7 @@ package com.pythonorc;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.exec.vector.*;
-import org.apache.orc.OrcFile;
-import org.apache.orc.Reader;
-import org.apache.orc.RecordReader;
-import org.apache.orc.TypeDescription;
+import org.apache.orc.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +14,7 @@ import java.util.*;
  */
 public class SimplifiedOrcReader implements Iterable<Object> {
     private String filePath;
+    private OrcFile.ReaderOptions options;
     private Reader reader;
     private TypeDescription schema;
 
@@ -29,17 +27,33 @@ public class SimplifiedOrcReader implements Iterable<Object> {
     }
 
     public void open(Configuration conf) throws IOException{
-        this.reader = OrcFile.createReader(new Path(this.filePath), OrcFile.readerOptions(conf));
+        OrcFile.ReaderOptions options = OrcFile.readerOptions(conf);
+        this.reader = OrcFile.createReader(new Path(this.filePath), options);
         this.schema = this.reader.getSchema();
+        this.options = options;
     }
 
     public void close() {
         this.reader = null;
         this.schema = null;
+        this.options = null;
     }
 
     public List<String> getFieldNames() {
         return this.schema.getFieldNames();
+    }
+
+    public Map<String, String> getFileMetaInfo() {
+        Map<String, String> dict = new HashMap<>();
+        FileMetaInfo finfo = this.options.getFileMetaInfo();
+
+        dict.put("bufferSize", String.valueOf(finfo.bufferSize));
+        dict.put("metadataSize", String.valueOf(finfo.metadataSize));
+        dict.put("compressionType", String.valueOf(finfo.compressionType));
+        dict.put("writerVersion", String.valueOf(finfo.writerVersion.getId()));
+        dict.put("versionLists", finfo.versionList.toString());
+
+        return dict;
     }
 
     public long getNumberOfRows() {
@@ -75,13 +89,13 @@ public class SimplifiedOrcReader implements Iterable<Object> {
 
     public Iterator<Object> batch(int size) {
         try {
-            return new BatchIteractor(this.reader.rows(), this.schema, size);
+            return new BatchIterator(this.reader.rows(), this.schema, size);
         } catch (Exception ex) {
             throw new RuntimeException("Unable to init iterator");
         }
     }
 
-    abstract class BaseIteractor implements Iterator<Object> {
+    abstract class BaseIterator implements Iterator<Object> {
         VectorizedRowBatch batch;
         RecordReader recordReader;
         TypeDescription schema;
@@ -90,7 +104,7 @@ public class SimplifiedOrcReader implements Iterable<Object> {
         long batchSize = -1;
         boolean stillAvailable = false;
 
-        BaseIteractor(RecordReader recordReader, TypeDescription schema, int size) throws IOException {
+        BaseIterator(RecordReader recordReader, TypeDescription schema, int size) throws IOException {
             this.recordReader = recordReader;
             this.schema = schema;
             this.batch = schema.createRowBatch(size);
@@ -114,8 +128,8 @@ public class SimplifiedOrcReader implements Iterable<Object> {
         }
     }
 
-    class BatchIteractor extends BaseIteractor implements Iterator<Object> {
-        BatchIteractor(RecordReader recordReader, TypeDescription schema, int size) throws IOException {
+    class BatchIterator extends BaseIterator implements Iterator<Object> {
+        BatchIterator(RecordReader recordReader, TypeDescription schema, int size) throws IOException {
             super(recordReader, schema, size);
         }
 
@@ -153,7 +167,7 @@ public class SimplifiedOrcReader implements Iterable<Object> {
         }
     }
 
-    class RecordIterator extends BaseIteractor {
+    class RecordIterator extends BaseIterator {
         RecordIterator(RecordReader recordReader, TypeDescription schema) throws IOException {
             super(recordReader, schema, 1024);
         }

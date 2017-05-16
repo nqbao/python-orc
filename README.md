@@ -83,11 +83,13 @@ orc2csv /path/to/orcfile
 
 # TODOs
 
-- [x] Auto start / top java gateway
+- [x] Auto start / stop java gateway
 - [ ] Auto build gateway compiling
 - [ ] Unit tests
 - [ ] Publish package
-- [ ] Column projection and filtering
+- [ ] Column projection
+- [ ] Column filter
+- [ ] Provide utility functions to convert to pandas or numpy array
 - [ ] Wildcard directory support
 
 ## Known Issues
